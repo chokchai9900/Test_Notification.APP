@@ -20,46 +20,35 @@ namespace Test_Notification.APP
             OneSignal.Current.StartInit("d852feb3-ef79-403f-b8cd-ceddc02f4654")
                 .HandleNotificationReceived(HandleNotificationReceived)
                 .HandleNotificationOpened(HandleNotificationOpened)
-                //.HandleInAppMessageClicked(HandleInAppMessageClicked)
                 .InFocusDisplaying(OSInFocusDisplayOption.None)
                 .EndInit();
-
-            //OneSignal.Current.StartInit("d852feb3-ef79-403f-b8cd-ceddc02f4654")
-            //    .EndInit();
-        }
-
-        private void HandleInAppMessageClicked(OSInAppMessageAction action)
-        {
-
         }
 
         private void HandleNotificationOpened(OSNotificationOpenedResult result)
         {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                await MainPage.DisplayAlert("Additional Data 1", "test", "Ok");
-            });
-            //    Device.BeginInvokeOnMainThread(async () =>
-            //    {
-            //        await MainPage.DisplayAlert("Additional Data 1", result.notification.payload.additionalData["endpoint1"].ToString(), "Ok");
-            //        await MainPage.DisplayAlert("Additional Data 2", result.notification.payload.additionalData["endpoint2"].ToString(), "Ok");
-            //    });
+            DisplayNotificationMessage(result.notification);
         }
 
         private void HandleNotificationReceived(OSNotification notification)
         {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                await MainPage.DisplayAlert("Additional Data 1", "test", "Ok");
-            });
+            DisplayNotificationMessage(notification);
+        }
 
-            //Device.BeginInvokeOnMainThread(async () =>
-            //{
-            //    await MainPage.DisplayAlert("Additional Data 1", notification.payload.additionalData["endpoint1"].ToString(), "Ok");
-            //    await MainPage.DisplayAlert("Additional Data 2", notification.payload.additionalData["endpoint2"].ToString(), "Ok");
-            //});
-            //Debug.WriteLine("##### Noti ######");
-            //Debug.WriteLine(notification.payload.additionalData["endpoint"].ToString());
+        private void DisplayNotificationMessage(OSNotification notification)
+        {
+            var hasEnpoint1 = notification.payload.additionalData.ContainsKey("endpoint1");
+            var hasEnpoint2 = notification.payload.additionalData.ContainsKey("endpoint2");
+            if (hasEnpoint1 && hasEnpoint2)
+            {
+                var enpoint1 = notification.payload?.additionalData["endpoint1"];
+                var enpoint2 = notification.payload?.additionalData["endpoint2"];
+
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    await MainPage.DisplayAlert("Additional Data 1", enpoint1.ToString(), "Ok");
+                    await MainPage.DisplayAlert("Additional Data 2", enpoint2.ToString(), "Ok");
+                });
+            }
         }
 
         protected override void OnStart()
